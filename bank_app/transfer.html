@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Transfer</title>
+    <style>
+        body{
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">oluyo's</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+              <div class="collapse navbar-collapse justify-content-end text-center" id="navbarNavDropdown">
+                <ul class="nav justify-content-center text-end">
+                  <li class="nav-item">
+                    <a href="./index.html" class="nav-link text-white">sign_up</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./sign_in.html" class="nav-link text-white">sign_in</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./dashboard.html" class="nav-link text-white">dashboard</a>
+                  </li>
+                  <li class="nav-item">
+                    <button class="btn btn-dark" onclick="logout()">logout</button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+    </header>
+    <section>
+        <section>
+            <div class="justify-content-center text-center container-fluid">
+                <form action="" class="p-3 row">
+                    <h4 class="w-100 p-2 mb-2 text-dark" id="balance"></h4>
+                    <div class="input-group">
+                        <span class="input-group-text">💳</span>
+                        <select type="text" id="" name="" maxlength="10" class="form-control">
+                            <option value="" id="">select_account</option>
+                            <option value="" id="balance_opt"></option>
+                        </select>
+                    </div>
+                    <span class="m-4"></span>
+                    <div class="input-group">
+                        <span class="input-group-text">8..</span>
+                        <input type="number" id="recipient_account_number" name="recipient_account_number" max="10" class="form-control" placeholder="recipient_account"  onchange="check_account_name()">
+                    </div>
+                    <span id="error_name" class="m-4"></span>
+                    <div class="input-group">
+                        <span class="input-group-text">@</span>
+                        <input type="" id="recipient_account_name" name="recipient_account_name" class="form-control" disabled>
+                    </div>
+                    <span class="m-4"></span>
+                    <div class="input-group">                       
+                        <span class="input-group-text">₦</span>
+                        <input type="number" id="amount_to_transfer" name="amount_to_transfer" class="form-control" placeholder="enter_amount_to_transfer" onchange="check_account_name()">
+                    </div>
+                    <span id="error_amount" class="m-4"></span>
+                    <br>
+                    <!-- <div class="input-group">
+                        <input type="text" id="pass_word" name="password" class="form-control" placeholder="Enter your password">
+                    </div> -->
+
+                </form>
+                <button class="btn btn-dark" onclick="transfer()" id="transfer_btn">Transfer</button>
+
+                <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">
+                    Open modal
+                </button>
+                
+                <div class="modal fade" id="myModal">
+                    <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                        Modal body..
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        </div>
+                
+                    </div>
+                    </div>
+                </div> -->
+                <h6>Already have an account ? <a href="./sign_in.html">Sign in</a></h6>
+            </div>
+        </section>
+    </section>
+</body>
+<script>
+    transfer_btn.disabled = true
+    
+    var bank_details = JSON.parse(localStorage.getItem('bank_details'))
+    var all_users = JSON.parse(localStorage.getItem('user_details'))
+    var current_user = JSON.parse(localStorage.getItem('current_user'))
+    var transaction_history = JSON.parse(localStorage.getItem('transaction_history'))
+    
+    if(current_user){
+        console.log("You are logged in")
+    }else{
+        // console.log('false')
+        location.href = './sign_in.html'
+    }
+    if (all_users) {
+        console.log("Users exist 😁")
+    }else{
+        window.location.href = './index.html'
+    }
+
+    if (bank_details) {
+
+    }else{
+        bank_details = []
+        bank_info  = { 
+            government_funds : 0,
+            total_bank_general_income : 0,
+            total_bank_owned_income : 0 ,
+            total_number_of_users : 0
+        }
+        bank_details.push(bank_info)
+        localStorage.setItem("bank_details" , JSON.stringify(bank_details))
+    }
+    if (transaction_history) {
+        console.log("Transactions have been carried out 😁")
+    }else{
+        transaction_history = []
+        localStorage.setItem("transaction_history" , JSON.stringify(transaction_history))
+    }
+    
+    current_user= all_users.find(user => user.email == current_user.email)
+    balance.innerHTML = `Welcome, ${current_user.firstname} ${current_user.lastname}`
+    balance_opt.innerHTML = `${current_user.email}  : ₦${current_user.balance.toFixed(3)}`
+    
+    var check_input = () => {
+        if (amount_to_transfer.value != "" && recipient_account_number.value != "" && recipient_account_name.value != "invalid_account_number" && recipient_account_name.value != "ten_digits_please"){
+            transfer_btn.disabled = false
+        }else{
+            transfer_btn.disabled = true
+            console.log("empty_inputs!")
+        }
+    }
+
+
+    var transfer = () => {
+        recipient = all_users.find(user => user.account_number == recipient_account_number.value)
+        
+        amount_to_be_transferred = Number(amount_to_transfer.value)
+        recipient_account_num = Number(recipient_account_number)
+        
+        if ((typeof amount_to_be_transferred) == 'number' && (typeof recipient_account_num) == 'number') {
+            console.log("Oluyo is a boss 😁")
+            if (amount_to_be_transferred <= current_user.balance) {
+                alert(`You are about to transfer ₦${amount_to_be_transferred} to ${recipient.firstname} ${recipient.lastname}`)
+                // current_user.balance = current_user.balance - amount_to_be_transferred 
+                check_pin()
+            }else if ((typeof amount_to_be_transferred) != number) {x
+                error_amount.innerHTML = `<h6 class="text-danger">number_only</h6>`
+            }
+        }else{
+            console.log("Oluyo is a gbef 🥲")
+            alert("Only numbers please !")
+        }
+
+    }
+
+    var check_pin = () => {
+        recipient = all_users.find(user => user.account_number == recipient_account_number.value)
+        if (current_user.transfer_pin) {
+            // bank_details = JSON.parse(localStorage.getItem('bank_details'))
+            amount_to_be_transferred = Number(amount_to_transfer.value)
+            recipient_account_num = Number(recipient_account_number)
+            pin = prompt("your_transfer_pin")
+            // console.log(pin)
+            if (pin == current_user.transfer_pin) {
+
+                var total_balance = 0
+    
+                for (let i = 0; i < all_users.length; i++) {
+                    total_balance = total_balance + all_users[i].balance
+                }
+                
+                var VAT = Number((0.03/100)*amount_to_be_transferred)
+                amount_to_be_charged = (Number(amount_to_transfer.value) - VAT)
+                var charges = Number((0.05/100)*amount_to_be_charged)
+
+                // random_transaction_id_generator
+                var transaction_id = Math.floor(Math.random() * 1000)+1000
+                var transaction_id_index_end = Math.floor(Math.random() * 10)
+                var transaction_id_index_start = Math.floor(Math.random() * 10)
+                transaction_start = ['DC', 'CD', 'CE', 'DD', 'CB', 'EC', 'EB', 'BD', 'AD', 'BE', 'BA']
+                transaction_end = ['AB', 'EA', 'DA', 'BC', 'AA', 'DB', 'AC', 'AE', 'BB', 'CA', 'CC']
+
+                const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+                const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+                
+                const current_date = new Date()
+
+                // let transaction_date = current_date.getDate();
+                // let transaction_day = days[current_date.getDay()];
+                // let transaction_month = months[current_date.getMonth()];
+                // let transaction_month_num = current_date.getMonth();
+                // let transaction_year = current_date.getFullYear();
+                // let transaction_hour = current_date.getHours();
+                // let transaction_minute = current_date.getMinutes();
+                // let transaction_second = current_date.getSeconds();
+                // let transaction_millisecond = current_date.getMilliseconds();
+
+                // EE ED DE
+                console.log(`${transaction_start[transaction_id_index_start]}8${transaction_id}${transaction_end[transaction_id_index_end]}`)
+
+                transaction_details  = { 
+                    transaction_initiator : current_user.email,
+                    transaction_beneficiary : recipient.email,
+                    transaction_amount : amount_to_be_transferred ,
+                    transaction_charges : charges,
+                    transaction_VAT : VAT,
+                    transaction_time : current_date,
+                    transaction_id : `${transaction_start[transaction_id_index_start]}8${transaction_id}${transaction_end[transaction_id_index_end]}`
+                }
+
+                transaction_history.push(transaction_details)
+                
+                // To change the details in the general array of user information
+                recipient.balance = Number(recipient.balance) + amount_to_be_transferred
+                
+                current_user.balance = Number(current_user.balance) - (Number(amount_to_be_transferred) + Number(VAT) + Number(charges))
+    
+                bank_details[0].total_bank_owned_income += Number(charges) 
+
+                bank_details[0].total_bank_users_income = Number(total_balance) 
+
+                bank_details[0].government_funds += Number(VAT) 
+                
+                bank_details[0].total_number_of_users = all_users.length 
+
+                bank_details[0].total_bank_general_income = Number(Number(total_balance) + Number(bank_details[0].total_bank_owned_income) + Number(bank_details[0].government_funds))
+                
+                balance.innerHTML = '₦' + current_user.balance
+                balance_opt.innerHTML = '₦' + current_user.balance
+        
+                // console.log(current_user.balance)
+                console.log(current_user)
+                console.log(recipient)
+    
+                localStorage.setItem('user_details' , JSON.stringify(all_users))
+
+                localStorage.setItem('transaction_history' , JSON.stringify(transaction_history))
+    
+                localStorage.setItem('bank_details' , JSON.stringify(bank_details))
+                
+                localStorage.setItem('current_user' , JSON.stringify(current_user))
+                
+                // console.log(recipient.balance)
+                alert("transfer_successful 😁")
+                window.location.reload()
+            }else{
+                alert('wrong_pin')
+                check_pin()
+            }
+        }else{
+            transfer_pin = prompt("set_your_four_digit_transfer_pin_here")
+
+            if (transfer_pin.length == 4) {
+                // if (transfer_pin) {
+                    current_user.transfer_pin = transfer_pin
+                    console.log(current_user.transfer_pin)
+                    localStorage.setItem('current_user' , JSON.stringify(current_user))
+                    check_pin()
+                // } else{
+                    // alert("numbers_only")
+                    // check_pin()
+                    // console.log("YOU ARE A GBEF 🤌🏿")
+                // }
+            }else if (transfer_pin.length < 1){
+                alert("don't_leave_it_empty")
+                check_pin()
+                console.log("YOU ARE A GBEF 🤌🏿")
+            }else{
+                alert("four_digits_only")
+                check_pin()
+                console.log("YOU ARE A GBEF 🤌🏿")
+            }
+        }
+    }
+    var check_account_name = () => {
+        recipient = all_users.find(user => user.account_number == recipient_account_number.value)
+        amount_to_be_transferred = Number(amount_to_transfer.value)
+        var VAT = Number((0.03/100)*amount_to_be_transferred)
+        amount_to_be_charged = (Number(amount_to_transfer.value) - VAT)
+        var charges = Number((0.05/100)*amount_to_be_charged)
+
+        if (recipient_account_number.value) {
+
+            if(recipient_account_number.value.length == 10) {
+
+                if (amount_to_transfer.value){
+                    
+                    if(amount_to_transfer.value < 50){
+                        transfer_btn.disabled = true
+                        error_amount.innerHTML = '<h6 class="text-danger">no_transfer_less_than_₦50 🥲 </h6> '
+                        valid1 = ''
+                    }else if (amount_to_transfer.value > current_user.balance) {
+                        error_amount.innerHTML = `<h6 class="text-danger">no_transfer_more than_your_balance : ₦${current_user.balance} 🥲 </h6>`
+                        valid1 = ''
+                    }else{
+                        valid1 = 'true'
+                        // error_amount.innerHTML = ''
+                        error_amount.innerHTML = `<h6 class="text-dark"> VAT: ₦${VAT.toFixed(2)} additional_service_charge: ₦${charges.toFixed(2)}</h6> `
+                    }
+
+                }else{
+                    valid1 = ''
+                }
+
+                if (recipient) {
+                    recipient_account = (recipient.firstname + ' ' + recipient.lastname + ' ').toUpperCase()
+                    current_user_name = (current_user.firstname + ' ' + current_user.lastname + ' ').toUpperCase()
+                    valid2 = ''
+                    
+                    if (recipient_account == current_user_name){
+                        valid2 = ''
+                        recipient_account_name.value = ""
+                        error_name.innerHTML = '<h6 class="text-danger">transfer_to_your_own_account_is_not_allowed 🥲 </h6> '
+                    }else{
+                        valid2 = 'true'
+                        transfer_btn.disabled = true
+                        error_name.innerHTML = '<h6 class="text-success">name_found 😀 </h6> '
+                        recipient_account_name.value = (recipient.firstname + ' ' + recipient.lastname + ' ').toUpperCase()
+                    }
+                    
+                }else{
+                    valid2 = ''
+                    transfer_btn.disabled = true
+                    recipient_account_name.value = ""
+                    error_name.innerHTML = '<h6 class="text-danger">invalid_account_number 🥲 </h6> '
+                }
+
+                if (valid1 == 'true' && valid2 == 'true') {
+                    transfer_btn.disabled = false
+                }else if (valid1 != 'true' || valid2 != 'true') {
+                    transfer_btn.disabled = true
+                }
+
+            }else{
+                transfer_btn.disabled = true
+                recipient_account_name.value = ""
+                error_name.innerHTML = '<h6 class="text-danger">ten_digits_please 🥲 </h6> '
+            }
+
+        }else{
+            error_name.innerHTML = ''
+        }
+    }   
+    var logout = () => {
+        localStorage.removeItem('current_user')
+        window.location.href = './sign_in.html'
+    }
+</script>
+<!-- <script src="../bootstrap/bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+</html>

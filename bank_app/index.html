@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Sign up</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid justify-content-center text-center">
+                <ul class="nav">
+                    <li class="nav-item">
+                      <a class="navbar-brand" href="#">oluyo's</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <section>
+        <section>
+            <div class="w-50 justify-content-center text-center container-fluid">
+                <form action="" class="p-3">
+                    <label for="firstname">Firstname</label>
+                    <input type="text" id="first_name" name="firstname" class="form-control" placeholder="Enter your firstname">
+                    
+                    <label for="lastname">Lastname</label>
+                    <input type="text" id="last_name" name="lastname" class="form-control" placeholder="Enter your lastname">
+    
+                    <label for="email">Email</label>  
+                    <input type="text" id="e_mail" name="email" class="form-control" placeholder="Enter your email">
+    
+                    <label for="password">Password</label>
+                    <input type="text" id="pass_word" name="password" class="form-control" placeholder="Enter your password">
+                </form>
+                <button class="btn btn-dark" onclick="add_user()">Sign up</button>
+                <h6>Already have an account ? <a href="./sign_in.html">Sign in</a></h6>
+            </div>
+        </section>
+    </section>
+</body>
+
+<script>
+    var current_user = JSON.parse(localStorage.getItem('current_user'))
+    if(current_user){
+        location.href = './dashboard.html'
+    }
+    var transaction_history = JSON.parse(localStorage.getItem('transaction_history'))
+    var bank_details = JSON.parse(localStorage.getItem('bank_details'))
+    var all_users = JSON.parse(localStorage.getItem('user_details'))
+
+    bank_info  = { 
+        government_funds : 0,
+        total_bank_general_income : 0,
+        total_bank_owned_income : 0 ,
+        total_number_of_users : 0
+    }
+
+    // transaction_details  = { 
+    //     transaction_initiator : "",
+    //     transaction_beneficiary : "",
+    //     transaction_amount : "",
+    //     transaction_charges : "",
+    //     transaction_VAT : "",
+    //     transaction_date : ' ',
+    //     transaction_id : `${transaction_start[transaction_id_index_start]}8${transaction_id}${transaction_end[transaction_id_index_end]}`
+    // }
+    
+    if (bank_details) {
+        // bank_details[0].total_number_of_users = all_users.length 
+    }else{
+        bank_details = []
+        bank_details.push(bank_info)
+        localStorage.setItem("bank_details" , JSON.stringify(bank_details))
+    }
+
+    if (transaction_history) {
+        // bank_details[0].total_number_of_users = all_users.length 
+    }else{
+        transaction_history = []
+        // transaction_history.push(bank_info)
+        localStorage.setItem("transaction_history" , JSON.stringify(transaction_history))
+    }
+    
+    if (all_users) {
+        console.log("This is not the first user !")
+    }else{
+        console.log("This is the first user !")
+        user_info = []
+    }
+
+    function add_user() {
+        var firstname = first_name.value
+        var lastname = last_name.value          
+        var email = e_mail.value
+        var password = pass_word.value
+        var account_number = Math.floor(Math.random() * 1000000000) + 8000000000
+
+        user_data = { 
+            firstname : firstname,
+            lastname : lastname,
+            email : email, 
+            password : password,
+            account_number :account_number,
+            balance : 20000,
+            transfer_pin : "",
+            last_login : { last_login_date : "",last_login_day : "",last_login_month : "",last_login_year : "",last_login_hour : "",last_login_minute : "",last_login_second : "",last_login_millisecond : "", },
+            login_history : ""
+        }    
+        
+        
+        if (bank_details) {
+            bank_details[0].total_number_of_users += 1 
+            localStorage.setItem("bank_details" , JSON.stringify(bank_details))
+        }
+        
+        if (all_users) {
+            var existing_user = all_users.find(user => user.email == e_mail.value)
+            all_users.push(user_data)
+            if (existing_user) {
+                // if (e_mail.value == existing_user.email) {
+                    alert("User \" " + e_mail.value + " \" already exists")
+                // }
+            }else{
+                localStorage.setItem("user_details" , JSON.stringify(all_users))
+                window.location = "./sign_in.html"
+            }
+        }else{
+            user_info.push(user_data)
+            localStorage.setItem("user_details" , JSON.stringify(user_info))
+            window.location = "./sign_in.html"
+        }
+    }
+
+    
+    function delete_user() {
+        var firstname = firstname.value
+        var lastname = lastname.value
+        var email = email.value
+        var password = password.value
+    }
+    
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+</html>

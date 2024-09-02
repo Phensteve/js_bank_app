@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Dashboard</title>
+    <style>
+      #transaction_sent_history_container{
+        overflow-y: scroll;
+        height: 75vh;
+      }
+      #transaction_received_history_container{
+        overflow-y: scroll;
+        height: 75vh;
+      }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="#">oluyo's</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+              <div class="collapse navbar-collapse justify-content-end text-center" id="navbarNavDropdown">
+                <ul class="nav justify-content-center text-end">
+                  <li class="nav-item">
+                    <a href="./index.html" class="nav-link text-white">sign_up</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./sign_in.html" class="nav-link text-white">sign_in</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./transfer.html" class="nav-link text-white">transfer_funds</a>
+                  </li>
+                  <li class="nav-item">
+                    <button class="btn btn-dark" onclick="logout()">logout</button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+    </header>
+    <section>
+      <div class="row mx-auto bg-light mt-5 p-4 w-75">
+        <h4 class="w-100 p-2 mb-2 text-dark" id="welcome_user"></h4>
+        <div class="row rounded mx-auto justify-content-center p-3 col-sm-12 col-xl-6 h-100">
+          <div class="col-md-11 col-lg-11 col-xl-9 col-xxl-3 m-1 p-2"><h5>Email</h5><b id="email"></b></div>
+          <div class="col-md-7 col-lg-7 col-xl-6 col-xxl-3 m-1 p-2"><h5>Account_Number</h5><b id="account_number"></b></div>
+          <div class="col-md-4 col-lg-4 col-xl-3 col-xxl-3 m-1 p-2"><h5>Balance</h5><b id="balance"></b></div>
+        </div>
+        
+        <div class="row rounded bg-secondar mx-auto justify-content-center p-3 col-sm-12 col-xl-5">
+          <a type="button" class="nav-link text-primary" data-bs-toggle="modal" data-bs-target="#myModal"><h5>Transaction&nbsp;history&nbsp;></h5></a>
+          <div class="col-md-11 col-lg-11 col-xl-9 col-xxl-3 m-1 p-2"><ol id="recent_transaction"></ol></div>
+          
+          <div class="modal fade" id="myModal">
+            <div class="modal-dialog modal-fullscreen">
+              <div class="modal-content">
+
+                <div class="modal-header">
+                  <h4 class="modal-title">Transaction History</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-sm-6 m-2"><b>Received : </b><h5 id="total_money_in_container" class="text-success">Total money in : ₦</h5><ol id="transaction_received_history_container"></ol></div>
+                    <div class="col-sm-5 m-2"><b>Sent : </b><h5 id="total_money_out_container" class="text-danger">Total money out : ₦</h5><ol id="transaction_sent_history_container"></ol></div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </section>
+    </body>
+    <script>
+      
+      var current_user = JSON.parse(localStorage.getItem('current_user'))
+      var all_users = JSON.parse(localStorage.getItem('user_details'))
+      var transaction_history = JSON.parse(localStorage.getItem('transaction_history'))
+
+      if(current_user){
+        // console.log(current_user)
+        email.innerHTML = current_user.email 
+        account_number.innerHTML = current_user.account_number
+        balance.innerHTML = `₦${current_user.balance.toFixed(3)}`
+        welcome_user.innerHTML = `Welcome, ${current_user.firstname} ${current_user.lastname}`
+      }else{
+        console.log('false')
+        location.href = './sign_in.html'
+      }
+
+      if (all_users) {
+        console.log("Users exist 😁")
+      }else{
+        window.location.href = './index.html'
+      }
+
+      if (bank_details) {
+        // bank_details[0].total_number_of_users = all_users.length 
+      }else{
+        bank_details = []
+        bank_info  = { 
+          government_funds : 0,
+          total_bank_general_income : 0,
+          total_bank_owned_income : 0 ,
+          total_number_of_users : 0
+        }
+        bank_details.push(bank_info)
+        localStorage.setItem("bank_details" , JSON.stringify(bank_details))
+      }
+      if (transaction_history) {
+        // bank_details[0].total_number_of_users = all_users.length 
+      }else{
+          transaction_history = []
+          // transaction_history.push(bank_info)
+          localStorage.setItem("transaction_history" , JSON.stringify(transaction_history))
+      }
+
+      current_user= all_users.find(user => user.email == current_user.email)
+      
+      var find = all_users.find(user => user.email == current_user.email) 
+      if (transaction_history[0]) {
+        transaction_details = transaction_history.filter(user => user.transaction_initiator == current_user.email)
+        last_as_beneficiary = transaction_history.filter(user => user.transaction_beneficiary == current_user.email)
+        transaction = {sent : transaction_details,   received : last_as_beneficiary}
+        // console.log(transaction)
+      }else{
+        console.log('No transactions')
+      }
+      
+      
+      if (transaction_details) {
+        
+        // console.log(transaction_details)
+        transaction_received_history_container.innerHTML = ''
+        transaction_sent_history_container.innerHTML = ''
+        total_money_out = []
+        for (let i = 0; i < (transaction_details.length); i++) {
+          var last_transaction = new Date(transaction_details[i].transaction_time)
+          const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+          const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+          
+          let last_transaction_date_num = last_transaction.getDate();
+          let last_transaction_day = days[last_transaction.getDay()];
+          let last_transaction_month = months[last_transaction.getMonth()];
+          let last_transaction_month_num = last_transaction.getMonth();
+          let last_transaction_year = last_transaction.getFullYear();
+          let last_transaction_hour = last_transaction.getHours();
+          let last_transaction_minute = last_transaction.getMinutes();
+          let last_transaction_second = last_transaction.getSeconds();
+          let last_transaction_millisecond = last_transaction.getMilliseconds();
+          // console.log(transaction_details)
+          var recipient = all_users.find(user => user.email == transaction_details[i].transaction_beneficiary)
+          transaction_sent_history_container.innerHTML += `<li><div class="card bg-dark text-light p-2 m-1"><strong>Amount : ₦${transaction_details[i].transaction_amount}</strong><strong>Date : ${last_transaction_day} ${last_transaction_month} ${last_transaction_date_num}, ${last_transaction_year}</strong><strong>Time: ${last_transaction_hour}:${last_transaction_minute}</strong><strong>To : ${recipient.firstname} ${recipient.lastname}</strong><strong> Account Number : ${recipient.account_number}</strong><strong>Transaction ID : ${transaction_details[i].transaction_id}</strong><strong>Transaction VAT : ₦${(transaction_details[i].transaction_VAT).toFixed(3)}</strong><strong>Transaction charges : ₦${(transaction_details[i].transaction_charges).toFixed(3)}</strong><strong>Total transaction cost : ₦${((transaction_details[i].transaction_charges) + Number(transaction_details[i].transaction_amount) + Number(transaction_details[i].transaction_VAT)).toFixed(3)}</strong></div></li>`
+
+          total_money_out.push(transaction_details[i].transaction_amount)
+          
+        }
+        var total_balance_in = 0
+        for (let i = 0; i < total_money_out.length; i++) {
+          total_balance_in = total_balance_in + transaction_details[i].transaction_amount
+        }
+        total_money_out_container.innerHTML += `${total_balance_in}`
+        console.log(total_balance_in)
+        // ${transaction_details[i].transaction_}
+      }else{
+        // console.log('You are a gbef')
+        transaction_received_history_container.innerHTML += "<h4 class=\"text-center\">No_money_received</h4>"
+        transaction_sent_history_container.innerHTML += "<h4 class=\"text-center\">No_money_sent</h4>"
+      }
+      
+      if (last_as_beneficiary) { 
+        var last_login_time = `${current_user.last_login}`
+        const last_login_date = new Date(last_login_time)
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+
+        let last_login_date_num = last_login_date.getDate();
+        let last_login_day = days[last_login_date.getDay()];
+        let last_login_month = months[last_login_date.getMonth()];
+        let last_login_month_num = last_login_date.getMonth();
+        let last_login_year = last_login_date.getFullYear();
+        let last_login_hour = last_login_date.getHours();
+        let last_login_minute = last_login_date.getMinutes();
+        let last_login_second = last_login_date.getSeconds();
+        let last_login_millisecond = last_login_date.getMilliseconds();
+        
+        last_transaction_date = []
+        
+        last_transaction_done_list = []
+
+        last_transaction_date_list = []
+
+        total_money_in = []
+        
+        for (let i = 0; i < last_as_beneficiary.length; i++) {
+          var last_transaction = new Date(last_as_beneficiary[i].transaction_time)
+          
+          let last_transaction_date_num = last_transaction.getDate();
+          let last_transaction_day = days[last_transaction.getDay()];
+          let last_transaction_month = months[last_transaction.getMonth()];
+          let last_transaction_month_num = last_transaction.getMonth();
+          let last_transaction_year = last_transaction.getFullYear();
+          let last_transaction_hour = last_transaction.getHours();
+          let last_transaction_minute = last_transaction.getMinutes();
+          let last_transaction_second = last_transaction.getSeconds();
+          let last_transaction_millisecond = last_transaction.getMilliseconds();
+          
+          last_transaction_date.push(last_transaction)
+
+          // var last_transaction = last_transaction_date.filter(last_transaction_date => (new Date(last_transaction_date[i])) >= last_login_date)
+      
+          if (new Date(last_transaction_date[i]) >= last_login_date) {
+            console.log('True')
+            var last_transaction = new Date(last_transaction_date[i])
+          
+            let latest_transaction_date_num = last_transaction.getDate();
+            let latest_transaction_day = days[last_transaction.getDay()];
+            let latest_transaction_month = months[last_transaction.getMonth()];
+            let latest_transaction_month_num = last_transaction.getMonth();
+            let latest_transaction_year = last_transaction.getFullYear();
+            let latest_transaction_hour = last_transaction.getHours();
+            let latest_transaction_minute = last_transaction.getMinutes();
+            let latest_transaction_second = last_transaction.getSeconds();
+            let latest_transaction_millisecond = last_transaction.getMilliseconds();
+            
+            recent_transaction.innerHTML += `<li><div class="text-dark p-2 m-1"><strong>You received ₦${last_as_beneficiary[i].transaction_amount} from ${sender.firstname} ${sender.lastname} on ${latest_transaction_month} ${latest_transaction_date_num} at ${latest_transaction_hour}:${latest_transaction_minute}</strong></div></li>`
+            
+          }
+          // else{
+            // console.log(last_transaction)
+            // console.log("False")
+          // }
+          var sender = all_users.find(user => user.email == last_as_beneficiary[i].transaction_initiator)
+          transaction_received_history_container.innerHTML += `<li><div class="card bg-dark text-light p-2 m-1"><strong>Amount : ₦${last_as_beneficiary[i].transaction_amount}</strong><strong>Date : ${last_transaction_day} ${last_transaction_month} ${last_transaction_date_num} ${last_transaction_year}</strong><strong>Time: ${last_transaction_hour}:${last_transaction_minute}</strong><strong>From : ${sender.firstname} ${sender.lastname}</strong><strong> Account Number : ${sender.account_number}</strong><strong>Transaction ID : ${last_as_beneficiary[i].transaction_id}</strong></div></li>`
+
+          total_money_in.push(last_as_beneficiary[i].transaction_amount)
+        }
+        var total_balance_in = 0
+        for (let i = 0; i < total_money_in.length; i++) {
+          total_balance_in = total_balance_in + last_as_beneficiary[i].transaction_amount
+        }
+        total_money_in_container.innerHTML += `${total_balance_in}`
+        console.log(total_balance_out)
+        if (recent_transaction == 'true') {
+          recent_transaction.innerHTML += `While you were away : ` 
+        }
+
+        // if (latest_transaction) {
+        //     for (let i = 0; i < last_transaction_date.length; i++) {
+        //     }
+        //     if (last_transaction_date) {
+        //       for (let i = 0; i < latest_transaction.length; i++) {
+        //         console.log(latest_transaction)
+        //       }
+        //     }else{
+        //       console.log("Dey play")
+        //     }
+        //   }
+       
+      }
+      function last_login() {
+        const current_date = new Date()
+        find.last_login = current_date
+        localStorage.setItem("user_details" , JSON.stringify(all_users))
+      }      
+      function logout() {
+        last_login()
+        localStorage.removeItem('current_user')
+        window.location.href = './sign_in.html'
+      }
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+</html>
